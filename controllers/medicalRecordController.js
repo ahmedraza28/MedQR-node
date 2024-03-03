@@ -205,8 +205,8 @@ exports.accessTemporaryLink = async (req, res) => {
         if (!tokenData || new Date() > tokenData.expires) {
             return res.status(404).json({ message: 'Link is invalid or has expired' });
         }
-
-        tempTokenStore.delete(token); // Invalidate token
+        // trying thing out
+        // tempTokenStore.delete(token); // Invalidate token 
 
         // Fetch the patient's name
         const patient = await Patient.findById(tokenData.patientId);
