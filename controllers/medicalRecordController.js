@@ -228,18 +228,63 @@ exports.accessTemporaryLink = async (req, res) => {
             `;
         });
 
+        // const html = `
+        //     <!DOCTYPE html>
+        //     <html>
+        //     <head>
+        //         <title>Medical Records for ${patientName}</title>
+        //     </head>
+        //     <body>
+        //         <h1>${patientName}</h1>
+        //         ${imagesHtml}
+        //     </body>
+        //     </html>
+        // `;
+
         const html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Medical Records for ${patientName}</title>
-            </head>
-            <body>
-                <h1>${patientName}</h1>
-                ${imagesHtml}
-            </body>
-            </html>
-        `;
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Medical Records for ${patientName}</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 20px;
+            }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #333;
+            }
+            h2 {
+                color: #666;
+            }
+            img {
+                max-width: 100%;
+                height: auto;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>${patientName}'s Medical Records</h1>
+            ${imagesHtml}
+        </div>
+    </body>
+    </html>
+`;
+
 
         res.send(html);
     } catch (error) {
