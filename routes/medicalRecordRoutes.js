@@ -14,5 +14,8 @@ router.get('/generate-link/:patientId', medicalRecordController.generateTemporar
 // Route to access patient records via a temporary link
 router.get('/temporary/:token', medicalRecordController.accessTemporaryLink);
 
+router.get('/generate-code', medicalRecordController.generateVerificationCode);
+router.post('/verify-code', medicalRecordController.verifyCodeAndRetrieveRecords);
+
 
 module.exports = router;

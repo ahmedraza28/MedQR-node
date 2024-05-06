@@ -248,3 +248,45 @@ exports.accessTemporaryLink = async (req, res) => {
     }
 };
 
+// Generate and store a 6-digit code corresponding to the patient's email
+exports.generateVerificationCode = async (req, res) => {
+    try {
+        const { email } = req.body;
+        // Generate a random 6-digit code
+        const code = Math.floor(100000 + Math.random() * 900000);
+        // Store the code with the email for 2 minutes
+        tempTokenStore.set(email, { code, expires: Date.now() + 120000 });
+
+        res.status(200).json({ message: 'Verification code generated successfully', code });
+    } catch (error) {
+        console.error('Error in generateVerificationCode:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Validate the provided code and retrieve records if it matches
+exports.verifyCodeAndRetrieveRecords = async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        const storedData = tempTokenStore.get(email);
+
+        if (!storedData || Date.now() > storedData.expires) {
+            return res.status(404).json({ message: 'Code is invalid or has expired' });
+        }
+
+        if (parseInt(code) === storedData.code) {
+            // Code matches, retrieve records for the given email
+            const patient = await Patient.findOne({ email }); // Assuming email is stored in Patient model
+            if (!patient) {
+                return res.status(404).json({ message: 'Patient not found' });
+            }
+            const medicalRecords = await getAllRecordsByPatient(patient._id);
+            return res.status(200).json({ medicalRecords });
+        } else {
+            return res.status(401).json({ message: 'Code is incorrect' });
+        }
+    } catch (error) {
+        console.error('Error in verifyCodeAndRetrieveRecords:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
