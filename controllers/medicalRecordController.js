@@ -300,7 +300,8 @@ exports.generateVerificationCode = async (req, res) => {
         // Generate a random 6-digit code
         const code = Math.floor(100000 + Math.random() * 900000);
         // Store the code with the email for 2 minutes
-        tempTokenStore.set(email, { code, expires: Date.now() + 120000 });
+        tempTokenStore.set(code, { email, expires: Date.now() + 120000 });
+        console.log(tempTokenStore);
 
         res.status(200).json({ message: 'Verification code generated successfully', code });
     } catch (error) {
@@ -312,19 +313,22 @@ exports.generateVerificationCode = async (req, res) => {
 // Validate the provided code and retrieve records if it matches
 exports.verifyCodeAndRetrieveRecords = async (req, res) => {
     try {
-        const { email, code } = req.body;
-        const storedData = tempTokenStore.get(email);
-
-        if (!storedData || Date.now() > storedData.expires) {
+        var { code } = req.body; // Assuming the code is sent in the request body
+        code = parseInt(code);
+        const storedData = tempTokenStore.get(code);
+        
+        if (!storedData || Date.now() > storedData.expirationTime) {
             return res.status(404).json({ message: 'Code is invalid or has expired' });
         }
 
-        if (parseInt(code) === storedData.code) {
-            // Code matches, retrieve records for the given email
-            const patient = await Patient.findOne({ email }); // Assuming email is stored in Patient model
-            if (!patient) {
-                return res.status(404).json({ message: 'Patient not found' });
-            }
+        // Retrieve patient by email
+        const patient = await Patient.findOne({ email: storedData.email });
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        // Compare the provided code with the stored code
+        if (parseInt(code) === parseInt(code)) {
             const medicalRecords = await getAllRecordsByPatient(patient._id);
             return res.status(200).json({ medicalRecords });
         } else {
